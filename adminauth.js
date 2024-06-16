@@ -77,30 +77,7 @@ app.post("/login", async(req, res) => {
     res.send({"Token":token, "Auth":"Success", "motd": nonsense});
 })
 
-async function authencheck(username, password) {
-    token = false;
-    let namecheck = await client.db("general").collection("Admins").findOne({
-        name: username
-    })
 
-    if(!namecheck) {
-        console.log(namecheck)
-        return token;
-    }
-
-    const hashpass = await bcrypt.compare(password, namecheck.password);
-
-    if(hashpass) {
-        /*
-        jwt.sign({"id": namecheck._id}, secret, {expiresIn:"30m"}, (err, asyncToken) => {
-            if (err) throw err;
-            token = asyncToken
-        });
-        */
-        token = jwt.sign({"id": namecheck._id}, secret, {expiresIn:"10m"});
-    }
-    return token;
-}
 
 app.delete('/eraseuser/:id', adminhash, async (req, res) => {
     if(!res.locals.success) {
@@ -167,6 +144,30 @@ app.delete('/eraseself/:id', verifyhash, async (req, res) => {
     console.log(delresult)
 })
 
+async function authencheck(username, password) {
+    token = false;
+    let namecheck = await client.db("general").collection("Admins").findOne({
+        name: username
+    })
+
+    if(!namecheck) {
+        console.log(namecheck)
+        return token;
+    }
+
+    const hashpass = await bcrypt.compare(password, namecheck.password);
+
+    if(hashpass) {
+        /*
+        jwt.sign({"id": namecheck._id}, secret, {expiresIn:"30m"}, (err, asyncToken) => {
+            if (err) throw err;
+            token = asyncToken
+        });
+        */
+        token = jwt.sign({"id": namecheck._id}, secret, {expiresIn:"10m"});
+    }
+    return token;
+}
 function adminhash(req, res, next) {
     if(!req.headers.authorization) {
         res.locals.success = false;
