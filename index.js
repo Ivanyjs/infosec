@@ -5,6 +5,7 @@ const express = require('express')
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const config = require('./config.json')
 const auth = require("./auth.js")
+const admin = require("./adminauth.js")
 
 //Things, main variables, etc.
 const app = express();
@@ -26,3 +27,4 @@ app.listen(port, () => {
 })
 
 app.use("/auth", auth.app) //Authentication Code.
+app.use("/admin", admin)
