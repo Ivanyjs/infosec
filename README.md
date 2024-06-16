@@ -2,7 +2,7 @@
 Database &amp; Cloud System Group Assignment (Group A)
 
 ## Usage Documentation
-**Admin**
+### **Admin**
 Register
 ```
  &lt;address&gt;:5200/admin/register
@@ -18,8 +18,8 @@ Eraseuser/Eraseself
  &lt;address&gt;:5200/admin/eraseuser (or eraseself)
  Data required: id (in params) and token (in authentication)
 ```
-<br>
-**Users**
+
+### **Users**
 Register
 ```
  &lt;address&gt;:5200/auth/register
