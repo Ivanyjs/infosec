@@ -7,7 +7,7 @@ const config = require('./config.json')
 const auth = require("./auth.js")
 const admin = require("./adminauth.js")
 const gamestep = require("./game_steps.js")
-const gamestart = require("./gamelogic.js")
+// const gamestart = require("./gamelogic.js")
 
 //Things, main variables, etc.
 const app = express();

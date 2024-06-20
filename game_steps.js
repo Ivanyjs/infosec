@@ -1,7 +1,4 @@
 
-// Import the checkWin and makeMove functions from the Tic Tac Toe module
-const {checkWin,makeMove} = require('./gamelogic.js');
-
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express');
 const {verifyhash} = require('./auth.js');
@@ -111,6 +108,10 @@ app.post("/joinlobby", verifyhash, async(req, res) => {
     })
 
     if(result1 === null) {
+        if(result2 === null) {
+            res.send("Room not found.")
+            return
+        }
         if (result2.player2_id === null) {
         let result = await client.db("general").collection("lobby").updateOne(
             {_id:   roomid}, {$set: {player2_id: _id}}
@@ -150,25 +151,43 @@ app.delete("/leavelobby", async(req, res) => {              // When the games en
     }
 })
 
-
-// Define the initial state of the board
-app.post("/init", async (req, res) => {
+app.patch("/endgame", async(req, res) => {
     roomid = new ObjectId(req.body.roomid);
-    let result_find = await client.db("general").collection("lobby").findOne({_id: roomid})
-    console.log(result_find)
-    if(!result_find) {
-        res.send("Room not found. Unable to initialize game.")
-        return
+    let result_find = await client.db("general").collection("lobby").findOne({_id: roomid});
+    if(result_find){
+        if(result_find.player2_id === null){
+            res.send("The lobby isn't full, direct end the game by leaving the lobby.")
+        }
+
+        else{
+            let result = await client.db("general").collection("lobby").updateOne({_id: roomid}, {$set: {progress: 1}});
+            res.send("Game "+ roomid + "has been ended.");
+        }
+
     }
     else{
-        let result = await client.db("general").collection("gamedata").insertOne({
-            _roomid: roomid,
-            });
-        res.send({"Status: " : "Game has been initialized."});
-        console.log(result);
+        res.send("Game not found.");
     }
-
 })
+
+// // Define the initial state of the board
+// app.post("/init", async (req, res) => {
+//     roomid = new ObjectId(req.body.roomid);
+//     let result_find = await client.db("general").collection("lobby").findOne({_id: roomid})
+//     console.log(result_find)
+//     if(!result_find) {
+//         res.send("Room not found. Unable to initialize game.")
+//         return
+//     }
+//     else{
+//         let result = await client.db("general").collection("gamedata").insertOne({
+//             _roomid: roomid,
+//             });
+//         res.send({"Status: " : "Game has been initialized."});
+//         console.log(result);
+//     }
+
+// })
 
 
 
