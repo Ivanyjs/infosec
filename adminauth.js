@@ -1,6 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const {ObjectId} = require('mongodb'); //AAAAAAh
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const config = require('./config.json');
 const bcrypt = require('bcrypt');
 
@@ -42,6 +41,7 @@ app.post("/register", async (req, res) => {
    let namecheck = await client.db("general").collection("Admins").findOne({
         user: req.body.user
     })
+
     if(namecheck) {
         res.send("Admin username already taken.");
         return;
@@ -59,7 +59,7 @@ app.post("/register", async (req, res) => {
     }
     else {
         console.log ("[ERR] Registeration failed unexpectedly")
-        res.send("Something happened...?")
+        res.send("Something failed...?")
     }
 })
 
@@ -168,6 +168,7 @@ async function authencheck(username, password) {
     }
     return token;
 }
+
 function adminhash(req, res, next) {
     if(!req.headers.authorization) {
         res.locals.success = false;
@@ -177,7 +178,10 @@ function adminhash(req, res, next) {
 
     TokenArray =req.headers.authorization.split(" ");
     try {
-        jwt.verify(TokenArray[1], secret);
+        const output = jwt.verify(TokenArray[1], secret);
+        res.locals.output = output
+        res.locals.success = true
+        next();
     }
     catch(err) {
         res.locals.success = false;
@@ -195,10 +199,6 @@ function adminhash(req, res, next) {
             next();
         }
     }
-    output = jwt.verify(TokenArray[1], secret)
-    res.locals.success = true
-    res.locals.output = output;
-    next();
 }
 
 
