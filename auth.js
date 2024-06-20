@@ -1,6 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const {ObjectId} = require('mongodb'); //AAAAAAh
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const config = require('./config.json');
 const bcrypt = require('bcrypt');
 
@@ -90,17 +89,17 @@ app.post("/login", async(req, res) => {
         res.send("Authentication failure, check your info.");
         return;
     }
-    nonsense = "Welcome user " + req.body.user;
+    nonsense = "Welcome user " + req.body.user; //I would use MOTD at this point, but that is unneccessary
     res.send({"Token":token, "Auth":"Success", "motd": nonsense});
 })
 
 //Parameters: password (in body) and id in params
 app.patch("/changepass/:id", verifyhash, async(req, res) => {
-    if(!req.body.password) {
+    if(!req.body.password) {    //Check if Password is provided, if not, stop.
         res.send("Input new password!")
         return
     }
-    if(!res.locals.success) {
+    if(!res.locals.success) {   //JWT check failed ?
         if(typeof res.locals.output !== 'undefined') {
             res.send(res.locals.output);
             return
@@ -110,12 +109,12 @@ app.patch("/changepass/:id", verifyhash, async(req, res) => {
             return
         }
     }
-    if(req.params.id != res.locals.output.id) {
+    if(req.params.id != res.locals.output.id) { //Illegal user ?
         res.send("Token user and user mismatch.")
         return
     }
 
-    _id = new ObjectId(req.params.id);
+    _id = new ObjectId(req.params.id);  //Needed becasue mongodb has its own ObjectId
 
     let result = await client.db("general").collection("Users").findOne({
         _id: _id
@@ -135,6 +134,7 @@ app.patch("/changepass/:id", verifyhash, async(req, res) => {
     console.log(patchresult)
 })
 
+//Same as changepasssword, with email instead
 app.patch("/changeemail/:id", verifyhash, async(req, res) => {
     if(!req.body.email) {
         res.send("Input new email!")
@@ -182,6 +182,7 @@ app.patch("/changeemail/:id", verifyhash, async(req, res) => {
     console.log(patchresult)
 })
 
+//Same as changeemail, with name instead.
 app.patch("/changename/:id", verifyhash, async(req, res) => {
     if(!req.body.name) {
         res.send("Input new player name!")
@@ -220,6 +221,7 @@ app.patch("/changename/:id", verifyhash, async(req, res) => {
     console.log(patchresult)
 })
 
+//Erases the whole account, no double warning.
 app.delete('/erase/:id', verifyhash, async (req, res) => {
     if(!res.locals.success) {
         if(typeof res.locals.output !== 'undefined') {
@@ -238,15 +240,18 @@ app.delete('/erase/:id', verifyhash, async (req, res) => {
 
     _id = new ObjectId(req.params.id);
 
+    //Check if said user exists.
     let result = await client.db("general").collection("Users").findOne({
         _id: _id
     })
 
+    //Gone ?
     if(!result) {
         res.send("ID not matching any user, did you delete account ?")
         return
     }
 
+    //Delete user.
     let delresult = await client.db("general").collection("Users").deleteOne({
         _id: _id
     })
@@ -279,10 +284,6 @@ async function authencheck(username, password) {
     }
     return token;
 }
-    if(!req.headers.authorization) {
-        res.send("Authorization Token missing!");
-        return;
-    }
 
 //Verify Hashing function, behaves based on input
 function verifyhash(req, res, next) {
@@ -320,7 +321,10 @@ function verifyhash(req, res, next) {
     });
     */
     try {
-        jwt.verify(TokenArray[1], secret);
+        const output = jwt.verify(TokenArray[1], secret);
+        res.locals.output = output
+        res.locals.success = true
+        next();
     }
     catch(err) {
         res.locals.success = false;
@@ -338,10 +342,6 @@ function verifyhash(req, res, next) {
             next();
         }
     }
-    output = jwt.verify(TokenArray[1], secret)
-    res.locals.success = true
-    res.locals.output = output;
-    next();
 }
 
 module.exports = {app,verifyhash};
