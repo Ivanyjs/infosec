@@ -266,8 +266,6 @@ async function authencheck(username, password) {
     }
 
     const hashpass = await bcrypt.compare(password, namecheck.password);
-
-
     if(hashpass) {
         /*
         jwt.sign({"id": namecheck._id}, secret, {expiresIn:"30m"}, (err, asyncToken) => {
@@ -275,14 +273,10 @@ async function authencheck(username, password) {
             token = asyncToken
         });
         */
-        token = jwt.sign({"id": namecheck._id}, secret, {expiresIn:"30m"});
+        token = jwt.sign({"id": namecheck._id}, secret, {expiresIn:"60m"});
     }
     return token;
 }
-    if(!req.headers.authorization) {
-        res.send("Authorization Token missing!");
-        return;
-    }
 
 //Verify Hashing function, behaves based on input
 function verifyhash(req, res, next) {
@@ -344,4 +338,4 @@ function verifyhash(req, res, next) {
     next();
 }
 
-module.exports = {app,verifyhash};
+module.exports = {app,verifyhash,authencheck};

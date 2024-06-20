@@ -64,11 +64,11 @@ app.post("/register", async (req, res) => {
 })
 
 app.post("/login", async(req, res) => {
-     if(!(req.body.pass && req.body.name)) {
+     if(!(req.body.password && req.body.name)) {
         res.send("Please login with password (pass) and admin name (name)");
         return;
     }
-    const token = await authencheck(req.body.name, req.body.pass)
+    const token = await authencheck(req.body.name, req.body.password)
     if(!token) {
         res.send("Authentication failure, check your info.");
         return;
