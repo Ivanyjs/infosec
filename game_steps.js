@@ -129,6 +129,30 @@ app.post("/joinlobby", verifyhash, async(req, res) => {
 
 })
 
+app.get("/getlobby", verifyhash, async(req, res) => {
+     if(!res.locals.success) {
+        if(typeof res.locals.output !== 'undefined') {
+            res.send(res.locals.output);
+            return
+        }
+        else {
+            res.send("Unknown error occured.");
+            return
+        }
+    }
+
+     _id = new ObjectId(res.locals.output.id);
+
+    let result1 = await client.db("general").collection("lobby").findOne({          // Check if user is already in a lobby
+        $or:[{player1_id: _id} , {player2_id: _id}]
+    })
+    if(result1) {   //If so, lets give the id of the lobby
+        res.send("You are in lobby with id: " + result1._id + ".")
+    }
+    else {  //Otherwise, say not.
+        res.send("You are not in any lobby.")
+    }
+})
 
 app.delete("/leavelobby", async(req, res) => {              // When the games end, the lobby will be deleted
     roomid = new ObjectId(req.body.roomid);
