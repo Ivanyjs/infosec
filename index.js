@@ -3,7 +3,7 @@
 //Dependencies
 const express = require('express')
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const config = require('./config.json')
+const config = require('./config')
 const auth = require("./auth.js")
 const admin = require("./adminauth.js")
 const gamestep = require("./game_steps.js")
@@ -11,7 +11,7 @@ const gamestep = require("./game_steps.js")
 
 //Things, main variables, etc.
 const app = express();
-const port = config.port || 5200;
+const port = process.env.PORT || 3000; //Eh.
 
 app.use(express.json())
 
