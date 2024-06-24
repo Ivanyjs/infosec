@@ -11,8 +11,7 @@ const gamestep = require("./game_steps.js")
 
 //Things, main variables, etc.
 const app = express();
-const port = process.env.PORT || 5200;
-const uri = config.db
+const port = config.port || 5200;
 
 app.use(express.json())
 
